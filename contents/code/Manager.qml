@@ -152,6 +152,13 @@ Item {
       desktop.render(client.desktopIndex, client.activityId);
     });
 
+    connectSave(client, 'activitiesChanged', () => {
+      const activities = client.activities;
+      if (activities.length !== 1 && !layout.moveClient(client, activities[0]))
+        unTile(client);
+      layout.render();
+    });
+
     return client;
   }
 
@@ -159,12 +166,14 @@ Item {
     disconnectRemove(client, 'clientFinishUserMovedResized');
     disconnectRemove(client, 'desktopChanged');
     disconnectRemove(client, 'screenChanged');
+    disconnectRemove(client, 'activitiesChanged');
     return client;
   }
 
   // public
   function add(client) {
     if (client &&
+      client.activities.length === 1 &&
       !floating.hasOwnProperty(client.windowId) &&
       !tiled.hasOwnProperty(client.windowId) &&
       !ignored(addProps(client))) {
